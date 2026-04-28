@@ -135,8 +135,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--pwc-bg); color: var
 .funnel { display: flex; flex-direction: column; gap: 10px; }
 .funnel-stage { display: flex; align-items: center; gap: 14px; }
 .funnel-label { font-size: 12px; font-weight: 600; color: var(--pwc-mid); width: 65px; text-align: right; flex-shrink: 0; }
-.funnel-bar-wrap { flex: 1; min-width: 0; }
-.funnel-bar { height: 34px; border-radius: 5px; display: flex; align-items: center; padding: 0 14px; font-size: 12px; font-weight: 600; color: #fff; min-width: 80px; }
+.funnel-bar-wrap { flex: 1; min-width: 0; max-width: 100%; overflow: hidden; }
+.funnel-bar { height: 34px; border-radius: 5px; display: flex; align-items: center; padding: 0 14px; font-size: 12px; font-weight: 600; color: #fff; min-width: 80px; max-width: 100%; }
 .funnel-meta { font-size: 12px; font-weight: 600; color: var(--pwc-mid); width: 70px; text-align: right; flex-shrink: 0; font-family: 'Charter', Georgia, serif; }
 
 .repeat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
@@ -503,10 +503,15 @@ function renderDashboard(data) {
       <div class="card">
         <div class="card-title">Pipeline Stage Funnel</div>
         <div class="funnel">
-          <div class="funnel-stage"><div class="funnel-label">Interact</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--pipe-blue);width:100%">${interact.length} deals</div></div><div class="funnel-meta">${fmt(totalInteract)}</div></div>
-          <div class="funnel-stage"><div class="funnel-label">Propose</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#3A6CC4;width:${Math.round((propose.length/interact.length)*100)||50}%">${propose.length} deals</div></div><div class="funnel-meta">${fmt(totalPropose)}</div></div>
-          <div class="funnel-stage"><div class="funnel-label">Target</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#6B8FD4;width:${Math.round((target.length/interact.length)*100)||40}%">${target.length} deals</div></div><div class="funnel-meta">${fmt(totalTarget)}</div></div>
-          <div class="funnel-stage"><div class="funnel-label">Won ✓</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--win-green);width:${Math.round((wins.length/interact.length)*100)||30}%">${wins.length} deals</div></div><div class="funnel-meta">${fmt(totalWon)}</div></div>
+          ${(() => {
+            const maxDeals = Math.max(interact.length, propose.length, target.length, wins.length, 1);
+            return `
+          <div class="funnel-stage"><div class="funnel-label">Interact</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--pipe-blue);width:${Math.round((interact.length/maxDeals)*100)}%">${interact.length} deals</div></div><div class="funnel-meta">${fmt(totalInteract)}</div></div>
+          <div class="funnel-stage"><div class="funnel-label">Propose</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#3A6CC4;width:${Math.round((propose.length/maxDeals)*100)}%">${propose.length} deals</div></div><div class="funnel-meta">${fmt(totalPropose)}</div></div>
+          <div class="funnel-stage"><div class="funnel-label">Target</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#6B8FD4;width:${Math.round((target.length/maxDeals)*100)}%">${target.length} deals</div></div><div class="funnel-meta">${fmt(totalTarget)}</div></div>
+          <div class="funnel-stage"><div class="funnel-label">Won</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--win-green);width:${Math.round((wins.length/maxDeals)*100)}%">${wins.length} deals</div></div><div class="funnel-meta">${fmt(totalWon)}</div></div>
+            `;
+          })()}
         </div>
       </div>
     </div>`;
