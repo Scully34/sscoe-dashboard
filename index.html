@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSCoE FY26 Performance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Charter:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pwc-orange: #E05A00;
+  --pwc-orange-pale: #FFF0E6;
+  --pwc-dark: #1A1A1A;
+  --pwc-charcoal: #2D2D2D;
+  --pwc-mid: #4A4A4A;
+  --pwc-muted: #888;
+  --pwc-border: #E8E8E8;
+  --pwc-bg: #FAFAF8;
+  --win-green: #1A7A4A;
+  --win-green-bg: #EBF7F1;
+  --lose-red: #C0392B;
+  --lose-red-bg: #FDECEA;
+  --pipe-blue: #1A4FA0;
+  --pipe-blue-bg: #EAF0FA;
+  --neutral-bg: #F3F3F0;
+  --radius: 12px;
+  --radius-sm: 6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--pwc-bg); color: var(--pwc-dark); min-height: 100vh; }
+
+.topbar { background: var(--pwc-dark); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 56px; position: sticky; top: 0; z-index: 100; }
+.pwc-logo { display: flex; align-items: center; gap: 10px; }
+.pwc-logo-mark { font-family: 'Charter', Georgia, serif; font-size: 22px; font-weight: 700; color: var(--pwc-orange); }
+.pwc-logo-divider { width: 1px; height: 20px; background: #444; }
+.pwc-logo-text { font-size: 11px; font-weight: 500; color: #aaa; letter-spacing: 0.12em; text-transform: uppercase; }
+.topbar-meta { font-size: 11px; color: #666; letter-spacing: 0.06em; }
+.topbar-updated { font-size: 10px; color: #555; margin-top: 2px; text-align: right; }
+
+.hero { background: var(--pwc-charcoal); padding: 44px 40px 36px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 380px; height: 380px; border-radius: 50%; background: radial-gradient(circle, rgba(224,90,0,0.18) 0%, transparent 70%); pointer-events: none; }
+.hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--pwc-orange), transparent); }
+.hero-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pwc-orange); margin-bottom: 10px; }
+.hero-title { font-family: 'Charter', Georgia, serif; font-size: 34px; font-weight: 700; color: #fff; letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 8px; }
+.hero-subtitle { font-size: 14px; color: #999; font-weight: 300; }
+
+.kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: #fff; border-bottom: 1px solid var(--pwc-border); }
+.kpi { padding: 22px 28px; border-right: 1px solid var(--pwc-border); position: relative; transition: background 0.15s; }
+.kpi:last-child { border-right: none; }
+.kpi:hover { background: var(--pwc-bg); }
+.kpi-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pwc-muted); margin-bottom: 6px; }
+.kpi-value { font-family: 'Charter', Georgia, serif; font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.kpi-value.orange { color: var(--pwc-orange); }
+.kpi-value.green { color: var(--win-green); }
+.kpi-value.blue { color: var(--pipe-blue); }
+.kpi-value.dark { color: var(--pwc-dark); }
+.kpi-sub { font-size: 11px; color: var(--pwc-muted); }
+.kpi-bar { position: absolute; bottom: 0; left: 0; height: 3px; border-radius: 0; background: var(--pwc-orange); transition: width 1s cubic-bezier(.16,1,.3,1); }
+
+.tab-wrapper { background: #fff; border-bottom: 1px solid var(--pwc-border); padding: 0 40px; display: flex; gap: 0; }
+.tab { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pwc-muted); padding: 16px 20px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; user-select: none; }
+.tab:hover { color: var(--pwc-dark); }
+.tab.active { color: var(--pwc-orange); border-bottom-color: var(--pwc-orange); }
+
+.content { padding: 36px 40px; max-width: 1400px; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+.section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+.section-title { font-family: 'Charter', Georgia, serif; font-size: 20px; font-weight: 700; color: var(--pwc-dark); }
+.section-count { font-size: 12px; font-weight: 600; color: var(--pwc-muted); background: var(--neutral-bg); padding: 2px 8px; border-radius: 20px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.sidebar-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+
+.card { background: #fff; border: 1px solid var(--pwc-border); border-radius: var(--radius); padding: 24px; animation: fadeUp 0.4s ease both; }
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.1s; }
+.card:nth-child(3) { animation-delay: 0.15s; }
+.card:nth-child(4) { animation-delay: 0.2s; }
+.card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pwc-muted); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--pwc-border); }
+
+.deal-list { display: flex; flex-direction: column; gap: 0; }
+.deal-row { display: grid; grid-template-columns: 1fr 130px 90px 80px; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--pwc-border); transition: all 0.12s; }
+.deal-row:last-child { border-bottom: none; }
+.deal-row:hover { background: var(--pwc-bg); padding-left: 8px; padding-right: 8px; margin: 0 -8px; width: calc(100% + 16px); }
+.deal-client { font-size: 13px; font-weight: 600; color: var(--pwc-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.deal-opp { font-size: 11px; color: var(--pwc-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.deal-lead { font-size: 11px; color: var(--pwc-mid); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.deal-amount { font-family: 'Charter', Georgia, serif; font-size: 14px; font-weight: 700; text-align: right; color: var(--pwc-dark); }
+
+.badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 20px; }
+.badge-won { background: var(--win-green-bg); color: var(--win-green); }
+.badge-lost { background: var(--lose-red-bg); color: var(--lose-red); }
+.badge-interact { background: #FFF8E6; color: #9A6700; }
+.badge-target { background: #F0EEFF; color: #5B21B6; }
+.badge-propose { background: #E6F0FF; color: #1A4FA0; }
+.badge-withdrawn { background: var(--neutral-bg); color: var(--pwc-muted); }
+
+.bar-chart { display: flex; flex-direction: column; gap: 14px; }
+.bar-label-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+.bar-label { font-size: 12px; font-weight: 500; color: var(--pwc-dark); }
+.bar-amount { font-size: 12px; font-weight: 600; color: var(--pwc-mid); font-family: 'Charter', Georgia, serif; }
+.bar-track { height: 6px; background: var(--neutral-bg); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; background: var(--pwc-orange); transition: width 1.2s cubic-bezier(.16,1,.3,1); }
+.bar-fill.green { background: var(--win-green); }
+.bar-fill.blue { background: var(--pipe-blue); }
+.bar-sub { font-size: 10px; color: var(--pwc-muted); margin-top: 3px; }
+
+.donut-wrap { display: flex; align-items: center; gap: 24px; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-label { font-size: 12px; color: var(--pwc-dark); }
+.legend-val { font-size: 12px; font-weight: 600; font-family: 'Charter', Georgia, serif; color: var(--pwc-mid); margin-left: auto; }
+
+.leader-list { display: flex; flex-direction: column; gap: 12px; }
+.leader-row { display: flex; align-items: center; gap: 12px; }
+.leader-rank { font-family: 'Charter', Georgia, serif; font-size: 18px; font-weight: 700; color: var(--pwc-border); width: 24px; text-align: center; flex-shrink: 0; }
+.leader-rank.gold { color: #C9A227; }
+.leader-rank.silver { color: #9E9E9E; }
+.leader-rank.bronze { color: #C07A43; }
+.leader-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--pwc-orange); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.leader-info { flex: 1; min-width: 0; }
+.leader-name { font-size: 13px; font-weight: 600; color: var(--pwc-dark); }
+.leader-detail { font-size: 11px; color: var(--pwc-muted); }
+.leader-wins { font-family: 'Charter', Georgia, serif; font-size: 15px; font-weight: 700; color: var(--pwc-dark); text-align: right; }
+.leader-wins span { display: block; font-size: 10px; font-family: 'DM Sans', sans-serif; color: var(--pwc-muted); font-weight: 400; }
+
+.insight { background: var(--pwc-orange-pale); border-left: 4px solid var(--pwc-orange); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 14px 18px; margin-bottom: 16px; }
+.insight-label { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--pwc-orange); margin-bottom: 4px; }
+.insight-text { font-size: 13px; color: var(--pwc-charcoal); line-height: 1.55; }
+
+.funnel { display: flex; flex-direction: column; gap: 8px; }
+.funnel-stage { display: flex; align-items: center; gap: 12px; }
+.funnel-label { font-size: 11px; font-weight: 600; color: var(--pwc-mid); width: 70px; text-align: right; }
+.funnel-bar-wrap { flex: 1; }
+.funnel-bar { height: 32px; border-radius: 4px; display: flex; align-items: center; padding: 0 12px; font-size: 12px; font-weight: 600; color: #fff; }
+.funnel-meta { font-size: 11px; color: var(--pwc-muted); width: 90px; text-align: right; }
+
+.repeat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.repeat-card { background: var(--pwc-bg); border: 1px solid var(--pwc-border); border-radius: var(--radius-sm); padding: 14px; }
+.repeat-name { font-size: 13px; font-weight: 600; color: var(--pwc-dark); margin-bottom: 4px; }
+.repeat-count { font-size: 11px; color: var(--pwc-muted); }
+.repeat-dot { display: inline-block; width: 8px; height: 8px; background: var(--pwc-orange); border-radius: 50%; margin-right: 4px; }
+
+.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; gap: 16px; }
+.loading-spinner { width: 40px; height: 40px; border: 3px solid var(--pwc-border); border-top-color: var(--pwc-orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.loading-text { font-size: 13px; color: var(--pwc-muted); }
+.error-msg { background: var(--lose-red-bg); border-left: 4px solid var(--lose-red); padding: 16px 20px; border-radius: 0 8px 8px 0; font-size: 13px; color: var(--lose-red); margin: 20px 0; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+.divider { height: 1px; background: var(--pwc-border); margin: 28px 0; }
+.footer { text-align: center; padding: 20px 40px; font-size: 10px; color: var(--pwc-muted); letter-spacing: 0.08em; border-top: 1px solid var(--pwc-border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="pwc-logo">
+    <div class="pwc-logo-mark">PwC</div>
+    <div class="pwc-logo-divider"></div>
+    <div class="pwc-logo-text">Software Selection Center of Excellence</div>
+  </div>
+  <div style="text-align:right">
+    <div class="topbar-meta">FY26 · Live Data</div>
+    <div class="topbar-updated" id="last-updated">Loading...</div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-eyebrow">Annual Performance Review</div>
+  <div class="hero-title">SSCoE FY26 Dashboard</div>
+  <div class="hero-subtitle" id="hero-subtitle">Loading data...</div>
+</div>
+
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-label">Total Wins</div>
+    <div class="kpi-value orange" id="kpi-wins">—</div>
+    <div class="kpi-sub">deals closed</div>
+    <div class="kpi-bar" id="bar-wins" style="width:0%"></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Revenue Won</div>
+    <div class="kpi-value green" id="kpi-revenue">—</div>
+    <div class="kpi-sub">total closed value</div>
+    <div class="kpi-bar" id="bar-revenue" style="width:0%;background:var(--win-green)"></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Active Pipeline</div>
+    <div class="kpi-value blue" id="kpi-pipeline">—</div>
+    <div class="kpi-sub" id="kpi-pipeline-sub">active deals</div>
+    <div class="kpi-bar" id="bar-pipeline" style="width:0%;background:var(--pipe-blue)"></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">SSCoE Led</div>
+    <div class="kpi-value dark" id="kpi-led">—</div>
+    <div class="kpi-sub">of wins originated by CoE</div>
+    <div class="kpi-bar" id="bar-led" style="width:0%;background:var(--pwc-charcoal)"></div>
+  </div>
+</div>
+
+<div class="tab-wrapper">
+  <div class="tab active" onclick="switchTab('overview', this)">Overview</div>
+  <div class="tab" onclick="switchTab('wins', this)">Wins</div>
+  <div class="tab" onclick="switchTab('pipeline', this)">Pipeline</div>
+  <div class="tab" onclick="switchTab('losses', this)">Losses & Withdrawals</div>
+  <div class="tab" onclick="switchTab('leaders', this)">Leaderboard</div>
+</div>
+
+<div class="content">
+  <div id="overview" class="panel active"><div class="loading"><div class="loading-spinner"></div><div class="loading-text">Loading dashboard data...</div></div></div>
+  <div id="wins" class="panel"><div class="loading"><div class="loading-spinner"></div><div class="loading-text">Loading wins...</div></div></div>
+  <div id="pipeline" class="panel"><div class="loading"><div class="loading-spinner"></div><div class="loading-text">Loading pipeline...</div></div></div>
+  <div id="losses" class="panel"><div class="loading"><div class="loading-spinner"></div><div class="loading-text">Loading losses...</div></div></div>
+  <div id="leaders" class="panel"><div class="loading"><div class="loading-spinner"></div><div class="loading-text">Loading leaderboard...</div></div></div>
+</div>
+
+<div class="footer">PwC · Software Selection Center of Excellence · FY26 · Confidential and not for distribution · Data refreshes automatically</div>
+
+<script>
+// ── CONFIG — REPLACE THIS URL WITH YOUR ONEDRIVE SHARING LINK ──────────────
+// 1. Right-click proposal_data.json in OneDrive
+// 2. Share → Anyone with the link can view → Copy link
+// 3. Replace the URL below
+const DATA_URL = "PASTE_YOUR_ONEDRIVE_SHARING_URL_HERE";
+
+// ── FALLBACK: embedded data snapshot (used if URL not yet configured) ──────
+const EMBEDDED_DATA = {"rows":[{"Sr. No.":1,"SF Created Date":"2025-10-02","CoE Date of Entry":"2025-10-14","SF Close Date":"2026-03-31","Client Name":"Cava Group Inc.","Opportunity Name":"Capability and ERP Assessment","Industry":"Consumer Markets","Sector":"Hospitality and Leisure","Opportunity Lead":"Marco D'Amico","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":265000},{"Sr. No.":2,"SF Created Date":"2025-10-15","CoE Date of Entry":"2025-10-20","SF Close Date":"2026-12-31","Client Name":"HEB","Opportunity Name":"Finance Optimization and ERP Selection","Industry":"Consumer Markets","Sector":"Retail and Consumer","Opportunity Lead":"Marco D'Amico","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":1980000},{"Sr. No.":3,"SF Created Date":"2025-09-01","CoE Date of Entry":"2025-09-10","SF Close Date":"2026-06-30","Client Name":"Pye Barker","Opportunity Name":"Process Assessment, Business Case & Enterprise Architecture","Industry":"Industrials and Services","Sector":"Industrial Products","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":1250000},{"Sr. No.":4,"SF Created Date":"2025-08-15","CoE Date of Entry":"2025-08-20","SF Close Date":"2026-03-31","Client Name":"Seminole Hard Rock","Opportunity Name":"Workday FIN/SCM Phase 0","Industry":"Consumer Markets","Sector":"Hospitality and Leisure","Opportunity Lead":"Chris Cameron","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":857000},{"Sr. No.":5,"SF Created Date":"2025-07-01","CoE Date of Entry":"2025-07-15","SF Close Date":"2026-03-31","Client Name":"Brooks Running","Opportunity Name":"PLM Selection + Architecture","Industry":"Consumer Markets","Sector":"Retail and Consumer","Opportunity Lead":"Michael Kupetis","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":650000},{"Sr. No.":6,"Client Name":"Blain's Supply","Opportunity Name":"Strategic Roadmap & Planning - Extension","Industry":"Consumer Markets","Opportunity Lead":"Michael Kupetis","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":1239000},{"Sr. No.":7,"Client Name":"Blain's Supply","Opportunity Name":"Blain Strategic UT - Data Architecture","Industry":"Consumer Markets","Opportunity Lead":"Michael Kupetis","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":801040},{"Sr. No.":8,"Client Name":"Joy Baking Group","Opportunity Name":"Business Capability and Architecture Assessment","Industry":"Consumer Markets","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":430000},{"Sr. No.":9,"Client Name":"Vertex Pharma","Opportunity Name":"CRM Platform Decision Support","Industry":"Health Industries","Opportunity Lead":"Elizabeth Otterman","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":438000},{"Sr. No.":10,"Client Name":"World Central Kitchen","Opportunity Name":"HCM and Payroll Selection","Industry":"Government and Public Sector","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":400000},{"Sr. No.":11,"Client Name":"Andersen Windows","Opportunity Name":"CX Technology Strategy","Industry":"Industrials and Services","Opportunity Lead":"PJ Ritters","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":525000},{"Sr. No.":12,"Client Name":"Amrize","Opportunity Name":"IT Governance - Phase 2","Industry":"Industrials and Services","Opportunity Lead":"Michael Kupetis","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":515000},{"Sr. No.":13,"Client Name":"GEV","Opportunity Name":"Power Phase 1 Mobilization Bridge Support","Industry":"Industrials and Services","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":500000},{"Sr. No.":14,"Client Name":"Indiana University","Opportunity Name":"ERP / Finance Technology Platform Evaluation","Industry":"Government and Public Sector","Opportunity Lead":"Meredith Mark","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":500000},{"Sr. No.":15,"Client Name":"Bridgestone Americas","Opportunity Name":"SAP S/4 Retail Assessment","Industry":"Industrials and Services","Opportunity Lead":"Michael Kupetis","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":500000},{"Sr. No.":16,"Client Name":"Flagstar Bank","Opportunity Name":"Finance Transformation: Discovery + ERP Selection","Industry":"Financial Services","Opportunity Lead":"Arjun Katyal","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":385000},{"Sr. No.":17,"Client Name":"Project Foresight","Opportunity Name":"ERP Assessment","Industry":"Industrials and Services","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":300000},{"Sr. No.":18,"Client Name":"Cobalt Benefits Group","Opportunity Name":"ERP Selection and Implementation Support","Industry":"Financial Services","Opportunity Lead":"Meredith Mark","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":300000},{"Sr. No.":19,"Client Name":"Joy Baking Group","Opportunity Name":"ERP Selection (Phase 2)","Industry":"Consumer Markets","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":220000},{"Sr. No.":20,"Client Name":"Enercon","Opportunity Name":"MS Planner PPM360 Mobilization and Pilot","Industry":"Industrials and Services","Opportunity Lead":"Michael Kupetis","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":260000},{"Sr. No.":21,"Client Name":"Enercon","Opportunity Name":"MSFT Planner Evaluation and Migration Roadmap","Industry":"Industrials and Services","Opportunity Lead":"Michael Kupetis","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":189000},{"Sr. No.":22,"Client Name":"Boeing (Subsidiary)","Opportunity Name":"HR System Selection for Subsidiary","Industry":"Industrials and Services","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":151000},{"Sr. No.":23,"Client Name":"Teledyne Technologies","Opportunity Name":"ERP Strategy","Industry":"Industrials and Services","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":137000},{"Sr. No.":24,"Client Name":"Melanie Henderson","Opportunity Name":"Tech and Process Assessment","Industry":"Consumer Markets","Opportunity Lead":"Melanie Henderson","SSCoE Led? (Y/N)":"Y","SF Status":"Won","Opportunity Amount":200000},{"Sr. No.":25,"Client Name":"JFC International","Opportunity Name":"Change Impact Assessment","Industry":"Consumer Markets","Opportunity Lead":"Cyd Aiken","SSCoE Led? (Y/N)":"N","SF Status":"Won","Opportunity Amount":120000},{"Sr. No.":26,"Client Name":"Entergy Corporation","Opportunity Name":"Oracle ERP Transformation Phase 0","Industry":"Industrials and Services","Opportunity Lead":"Michelle Seale","SSCoE Led? (Y/N)":"N","SF Status":"Interact","Opportunity Amount":19773000},{"Sr. No.":27,"Client Name":"Tapestry","Opportunity Name":"SC IT Strategy","Industry":"Consumer Markets","Opportunity Lead":"Unknown","SSCoE Led? (Y/N)":"N","SF Status":"Lost","Opportunity Amount":750000},{"Sr. No.":28,"Client Name":"Vertex Pharma","Opportunity Name":"ERP Vendor Selection","Industry":"Health Industries","Opportunity Lead":"Elizabeth Otterman","SSCoE Led? (Y/N)":"Y","SF Status":"Lost","Opportunity Amount":500000},{"Sr. No.":29,"Client Name":"Amrize","Opportunity Name":"ERP Assessment","Industry":"Industrials and Services","Opportunity Lead":"Michael Kupetis","SSCoE Led? (Y/N)":"N","SF Status":"Lost","Opportunity Amount":600000},{"Sr. No.":30,"Client Name":"Expeditors","Opportunity Name":"Global HCM Selection","Industry":"Industrials and Services","Opportunity Lead":"Dan Staley","SSCoE Led? (Y/N)":"N","SF Status":"Lost","Opportunity Amount":455000},{"Sr. No.":31,"Client Name":"Versant Media","Opportunity Name":"Day 2 ERP Selection","Industry":"Consumer Markets","Opportunity Lead":"Michael Kupetis","SSCoE Led? (Y/N)":"Y","SF Status":"Lost","Opportunity Amount":660000},{"Sr. No.":32,"Client Name":"Crusoe","Opportunity Name":"Enterprise Platform & IPO Strategy","Industry":"Financial Services","Opportunity Lead":"Marco D'Amico","SSCoE Led? (Y/N)":"Y","SF Status":"Lost","Opportunity Amount":500000},{"Sr. No.":33,"Client Name":"Copart","Opportunity Name":"GL Software Selection","Industry":"Financial Services","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Lost","Opportunity Amount":150000},{"Sr. No.":34,"Client Name":"Pedernales Electric","Opportunity Name":"ERP Assessment","Industry":"Industrials and Services","Opportunity Lead":"Sanjay Patel","SSCoE Led? (Y/N)":"Y","SF Status":"Withdrawn","Opportunity Amount":675000}]};
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function fmt(n) {
+  if (!n && n !== 0) return '—';
+  n = parseFloat(n);
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return '$' + Math.round(n/1000) + 'K';
+  return '$' + n;
+}
+
+function initials(name) {
+  if (!name) return '??';
+  return name.split(' ').filter(w => w.length > 1).map(w => w[0]).join('').slice(0,2).toUpperCase();
+}
+
+function statusBadge(s) {
+  const map = { 'Won':'badge-won','Lost':'badge-lost','Interact':'badge-interact','Propose':'badge-propose','Target':'badge-target','Withdrawn':'badge-withdrawn' };
+  return `<span class="badge ${map[s]||'badge-withdrawn'}">${s}</span>`;
+}
+
+function buildDealRow(d, showStatus=false) {
+  const amt = d['Opportunity Amount'];
+  const client = d['Client Name'] || '—';
+  const opp = d['Opportunity Name'] || '—';
+  const lead = d['Opportunity Lead'] || '—';
+  const status = d['SF Status'] || '';
+  return `<div class="deal-row">
+    <div><div class="deal-client">${client}</div><div class="deal-opp">${opp}</div></div>
+    <div style="text-align:right">${showStatus ? statusBadge(status) : ''}</div>
+    <div class="deal-lead">${lead}</div>
+    <div class="deal-amount">${fmt(amt)}</div>
+  </div>`;
+}
+
+function buildBarItem(label, amount, maxAmount, count, colorClass='', sub='') {
+  const pct = maxAmount > 0 ? Math.round((amount/maxAmount)*100) : 0;
+  return `<div class="bar-item">
+    <div class="bar-label-row"><span class="bar-label">${label}</span><span class="bar-amount">${fmt(amount)}</span></div>
+    <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${pct}%"></div></div>
+    ${sub ? `<div class="bar-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+// ── MAIN RENDER ────────────────────────────────────────────────────────────
+function renderDashboard(data) {
+  const rows = data.rows;
+  const ts = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Unknown';
+  document.getElementById('last-updated').textContent = `Last updated: ${ts}`;
+
+  const wins = rows.filter(r => r['SF Status'] === 'Won');
+  const lost = rows.filter(r => r['SF Status'] === 'Lost');
+  const withdrawn = rows.filter(r => r['SF Status'] === 'Withdrawn');
+  const pipeStatuses = ['Propose','Interact','Target'];
+  const pipe = rows.filter(r => pipeStatuses.includes(r['SF Status']));
+  const interact = rows.filter(r => r['SF Status'] === 'Interact');
+  const propose = rows.filter(r => r['SF Status'] === 'Propose');
+  const target = rows.filter(r => r['SF Status'] === 'Target');
+
+  const totalWon = wins.reduce((s,r) => s + (parseFloat(r['Opportunity Amount'])||0), 0);
+  const totalPipe = pipe.reduce((s,r) => s + (parseFloat(r['Opportunity Amount'])||0), 0);
+  const totalLost = lost.reduce((s,r) => s + (parseFloat(r['Opportunity Amount'])||0), 0);
+  const totalInteract = interact.reduce((s,r) => s + (parseFloat(r['Opportunity Amount'])||0), 0);
+  const totalPropose = propose.reduce((s,r) => s + (parseFloat(r['Opportunity Amount'])||0), 0);
+  const totalTarget = target.reduce((s,r) => s + (parseFloat(r['Opportunity Amount'])||0), 0);
+
+  const ledWins = wins.filter(r => (r['SSCoE Led? (Y/N)']||'').toUpperCase() === 'Y');
+  const ledPct = wins.length > 0 ? Math.round((ledWins.length/wins.length)*100) : 0;
+
+  // KPIs
+  document.getElementById('kpi-wins').textContent = wins.length;
+  document.getElementById('kpi-revenue').textContent = fmt(totalWon);
+  document.getElementById('kpi-pipeline').textContent = fmt(totalPipe);
+  document.getElementById('kpi-pipeline-sub').textContent = `${pipe.length} active deals`;
+  document.getElementById('kpi-led').textContent = ledPct + '%';
+  document.getElementById('hero-subtitle').textContent = `${rows.length} pursuits tracked · ${fmt(totalWon)} closed · ${fmt(totalPipe)} active pipeline`;
+
+  setTimeout(() => {
+    document.getElementById('bar-wins').style.width = '100%';
+    document.getElementById('bar-revenue').style.width = '80%';
+    document.getElementById('bar-pipeline').style.width = '100%';
+    document.getElementById('bar-led').style.width = ledPct + '%';
+  }, 100);
+
+  // Industry breakdown
+  const indMap = {};
+  wins.forEach(r => {
+    const k = r['Industry'] || 'Unknown';
+    if (!indMap[k]) indMap[k] = {count:0, total:0};
+    indMap[k].count++;
+    indMap[k].total += parseFloat(r['Opportunity Amount'])||0;
+  });
+  const indSorted = Object.entries(indMap).sort((a,b) => b[1].total - a[1].total);
+  const maxInd = indSorted[0]?.[1]?.total || 1;
+
+  // Lead breakdown
+  const leadMap = {};
+  wins.forEach(r => {
+    const k = r['Opportunity Lead'] || 'Unknown';
+    if (!leadMap[k]) leadMap[k] = {wins:0, total:0};
+    leadMap[k].wins++;
+    leadMap[k].total += parseFloat(r['Opportunity Amount'])||0;
+  });
+  const leadSorted = Object.entries(leadMap).sort((a,b) => b[1].wins - a[1].wins);
+  const maxLead = leadSorted[0]?.[1]?.total || 1;
+
+  // Repeat clients
+  const clientMap = {};
+  rows.forEach(r => {
+    const k = r['Client Name'];
+    if (!k) return;
+    clientMap[k] = (clientMap[k]||0) + 1;
+  });
+  const repeats = Object.entries(clientMap).filter(([,v]) => v >= 2).sort((a,b) => b[1]-a[1]);
+
+  // Donut segments (wins/pipe/lost/withdrawn)
+  const total = rows.length;
+  const winDeg = Math.round((wins.length/total)*314);
+  const pipeDeg = Math.round((pipe.length/total)*314);
+  const lostDeg = Math.round((lost.length/total)*314);
+  const withDeg = Math.round((withdrawn.length/total)*314);
+
+  // ── OVERVIEW ──
+  document.getElementById('overview').innerHTML = `
+    <div class="insight">
+      <div class="insight-label">Leadership Takeaway</div>
+      <div class="insight-text">The SSCoE closed ${wins.length} wins totaling ${fmt(totalWon)} with a pipeline of ${fmt(totalPipe)} across ${pipe.length} active deals. ${indSorted[0]?.[0]} and ${indSorted[1]?.[0]} dominate wins. ${ledPct}% of wins were SSCoE-originated.</div>
+    </div>
+    <div class="two-col" style="margin-bottom:24px;">
+      <div class="card">
+        <div class="card-title">Deal Outcomes by Volume</div>
+        <div class="donut-wrap">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="50" fill="none" stroke="#F3F3F0" stroke-width="18"/>
+            <circle cx="65" cy="65" r="50" fill="none" stroke="#1A7A4A" stroke-width="18" stroke-dasharray="${winDeg} ${314-winDeg}" stroke-dashoffset="0" transform="rotate(-90 65 65)"/>
+            <circle cx="65" cy="65" r="50" fill="none" stroke="#1A4FA0" stroke-width="18" stroke-dasharray="${pipeDeg} ${314-pipeDeg}" stroke-dashoffset="${-winDeg}" transform="rotate(-90 65 65)"/>
+            <circle cx="65" cy="65" r="50" fill="none" stroke="#C0392B" stroke-width="18" stroke-dasharray="${lostDeg} ${314-lostDeg}" stroke-dashoffset="${-(winDeg+pipeDeg)}" transform="rotate(-90 65 65)"/>
+            <circle cx="65" cy="65" r="50" fill="none" stroke="#CCCCCC" stroke-width="18" stroke-dasharray="${withDeg} ${314-withDeg}" stroke-dashoffset="${-(winDeg+pipeDeg+lostDeg)}" transform="rotate(-90 65 65)"/>
+            <text x="65" y="60" text-anchor="middle" font-size="20" font-weight="700" font-family="Charter,serif" fill="#1A1A1A">${total}</text>
+            <text x="65" y="75" text-anchor="middle" font-size="9" fill="#888" font-family="DM Sans,sans-serif">pursuits</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--win-green)"></div><div class="legend-label">Won</div><div class="legend-val">${wins.length} deals</div></div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--pipe-blue)"></div><div class="legend-label">Active</div><div class="legend-val">${pipe.length} deals</div></div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--lose-red)"></div><div class="legend-label">Lost</div><div class="legend-val">${lost.length} deals</div></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#CCC"></div><div class="legend-label">Withdrawn</div><div class="legend-val">${withdrawn.length} deals</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Wins by Industry ($)</div>
+        <div class="bar-chart">
+          ${indSorted.map(([ind, v]) => buildBarItem(ind, v.total, maxInd, v.count, '', `${v.count} win${v.count>1?'s':''}`)).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Repeat Clients — Relationship Depth</div>
+        <div class="insight" style="margin-bottom:14px;"><div class="insight-label">Signal</div><div class="insight-text">${repeats.length} clients returned for follow-on work — a strong indicator of long-term relationship building.</div></div>
+        <div class="repeat-grid">
+          ${repeats.map(([name, count]) => `<div class="repeat-card"><div class="repeat-name"><span class="repeat-dot"></span>${name}</div><div class="repeat-count">${count} engagements</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Pipeline Stage Funnel</div>
+        <div class="funnel">
+          <div class="funnel-stage"><div class="funnel-label">Interact</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--pipe-blue);width:100%">${interact.length} deals</div></div><div class="funnel-meta">${fmt(totalInteract)}</div></div>
+          <div class="funnel-stage"><div class="funnel-label">Propose</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#3A6CC4;width:${Math.round((propose.length/interact.length)*100)||50}%">${propose.length} deals</div></div><div class="funnel-meta">${fmt(totalPropose)}</div></div>
+          <div class="funnel-stage"><div class="funnel-label">Target</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#6B8FD4;width:${Math.round((target.length/interact.length)*100)||40}%">${target.length} deals</div></div><div class="funnel-meta">${fmt(totalTarget)}</div></div>
+          <div class="funnel-stage"><div class="funnel-label">Won ✓</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--win-green);width:${Math.round((wins.length/interact.length)*100)||30}%">${wins.length} deals</div></div><div class="funnel-meta">${fmt(totalWon)}</div></div>
+        </div>
+      </div>
+    </div>`;
+
+  // ── WINS ──
+  const winsSorted = [...wins].sort((a,b) => (parseFloat(b['Opportunity Amount'])||0)-(parseFloat(a['Opportunity Amount'])||0));
+  document.getElementById('wins').innerHTML = `
+    <div class="section-header"><div class="section-title">All Wins — FY26</div><div class="section-count">${wins.length} deals · ${fmt(totalWon)} total</div></div>
+    <div class="card"><div class="deal-list">${winsSorted.map(d => buildDealRow(d)).join('')}</div></div>`;
+
+  // ── PIPELINE ──
+  const pipeSorted = [...pipe].sort((a,b) => (parseFloat(b['Opportunity Amount'])||0)-(parseFloat(a['Opportunity Amount'])||0));
+  const top5 = pipeSorted.slice(0,5);
+  document.getElementById('pipeline').innerHTML = `
+    <div class="section-header"><div class="section-title">Active Pipeline</div><div class="section-count">${pipe.length} deals · ${fmt(totalPipe)}</div></div>
+    <div class="two-col" style="margin-bottom:24px;">
+      <div class="card">
+        <div class="card-title">By Stage</div>
+        <div class="bar-chart">
+          ${buildBarItem(`Interact (${interact.length})`, totalInteract, totalInteract, interact.length, 'blue')}
+          ${buildBarItem(`Propose (${propose.length})`, totalPropose, totalInteract, propose.length, 'blue')}
+          ${buildBarItem(`Target (${target.length})`, totalTarget, totalInteract, target.length, 'blue')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Top 5 Deals in Flight</div>
+        <div class="bar-chart">
+          ${top5.map((d,i) => buildBarItem(d['Client Name'], parseFloat(d['Opportunity Amount'])||0, parseFloat(top5[0]['Opportunity Amount'])||1, 0, 'blue', `${d['SF Status']}`)).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card"><div class="card-title">Full Pipeline</div><div class="deal-list">${pipeSorted.map(d => buildDealRow(d, true)).join('')}</div></div>`;
+
+  // ── LOSSES ──
+  const lostSorted = [...lost].sort((a,b) => (parseFloat(b['Opportunity Amount'])||0)-(parseFloat(a['Opportunity Amount'])||0));
+  const withSorted = [...withdrawn].sort((a,b) => (parseFloat(b['Opportunity Amount'])||0)-(parseFloat(a['Opportunity Amount'])||0));
+  document.getElementById('losses').innerHTML = `
+    <div class="section-header"><div class="section-title">Losses & Withdrawals</div><div class="section-count">${lost.length} losses · ${withdrawn.length} withdrawn</div></div>
+    <div class="two-col" style="margin-bottom:24px;">
+      <div class="card">
+        <div class="card-title">Losses — ${fmt(totalLost)} at risk</div>
+        <div class="deal-list">${lostSorted.map(d => buildDealRow(d)).join('')}</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Loss Notes</div>
+        ${lostSorted.filter(d => d['If Status = Lost, Provide Details']).map(d => `
+          <div style="padding:12px 0;border-bottom:1px solid var(--pwc-border)">
+            <div style="font-size:13px;font-weight:600;color:var(--pwc-dark)">${d['Client Name']}</div>
+            <div style="font-size:11px;color:var(--pwc-muted);margin-top:4px">${d['If Status = Lost, Provide Details']}</div>
+          </div>`).join('') || '<div style="font-size:12px;color:var(--pwc-muted);padding-top:12px">No loss notes recorded</div>'}
+      </div>
+    </div>
+    <div class="card"><div class="card-title">Withdrawals — ${fmt(withdrawn.reduce((s,r)=>s+(parseFloat(r['Opportunity Amount'])||0),0))} walked away</div><div class="deal-list">${withSorted.map(d => buildDealRow(d)).join('')}</div></div>`;
+
+  // ── LEADERS ──
+  const rankColors = ['gold','silver','bronze'];
+  const avatarColors = ['var(--pwc-orange)','#4A4A4A','#C07A43','#888','#1A4FA0','#1A4FA0','#1A7A4A','#555'];
+  document.getElementById('leaders').innerHTML = `
+    <div class="section-header"><div class="section-title">Opportunity Lead Leaderboard</div><div class="section-count">FY26 wins only</div></div>
+    <div class="insight"><div class="insight-label">Concentration Risk</div><div class="insight-text">${leadSorted[0]?.[0]} and ${leadSorted[1]?.[0]} together account for ${leadSorted[0]?.[1]?.wins + leadSorted[1]?.[1]?.wins} of ${wins.length} wins. Strong performance from top leads — worth building depth across the bench.</div></div>
+    <div class="sidebar-layout">
+      <div class="card">
+        <div class="card-title">Win Leaders</div>
+        <div class="leader-list">
+          ${leadSorted.slice(0,8).map(([name, v], i) => `
+            <div class="leader-row">
+              <div class="leader-rank ${rankColors[i]||''}">${i+1}</div>
+              <div class="leader-avatar" style="background:${avatarColors[i]}">${initials(name)}</div>
+              <div class="leader-info"><div class="leader-name">${name}</div><div class="leader-detail">${v.wins} win${v.wins>1?'s':''}</div></div>
+              <div class="leader-wins">${v.wins} wins<span>${fmt(v.total)}</span></div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="card">
+          <div class="card-title">Win $ Concentration</div>
+          <div class="bar-chart">
+            ${leadSorted.slice(0,5).map(([name, v]) => buildBarItem(name.split(' ').pop(), v.total, maxLead, v.wins)).join('')}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">SSCoE Led vs. Supported</div>
+          <div style="display:flex;align-items:center;gap:16px;padding-top:4px;">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="30" fill="none" stroke="#F3F3F0" stroke-width="12"/>
+              <circle cx="40" cy="40" r="30" fill="none" stroke="var(--pwc-orange)" stroke-width="12" stroke-dasharray="${Math.round(ledPct*1.885)} ${188-Math.round(ledPct*1.885)}" transform="rotate(-90 40 40)"/>
+              <text x="40" y="44" text-anchor="middle" font-size="13" font-weight="700" font-family="Charter,serif" fill="#1A1A1A">${ledPct}%</text>
+            </svg>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--pwc-dark);margin-bottom:6px;">${ledWins.length} of ${wins.length} wins SSCoE-led</div>
+              <div style="font-size:11px;color:var(--pwc-muted);line-height:1.5;">The CoE originated and drove ${ledPct}% of closed deals. The remaining ${100-ledPct}% were supported pursuits.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── DATA FETCHING ──────────────────────────────────────────────────────────
+async function loadData() {
+  // If URL is configured, try to fetch live
+  if (DATA_URL && DATA_URL !== 'PASTE_YOUR_ONEDRIVE_SHARING_URL_HERE') {
+    try {
+      // Convert OneDrive share link to direct download
+      const directUrl = DATA_URL.replace('sharepoint.com/:u:/r', 'sharepoint.com/:u:/r').replace('?e=', '?download=1&e=');
+      const resp = await fetch(directUrl);
+      if (resp.ok) {
+        const data = await resp.json();
+        renderDashboard(data);
+        return;
+      }
+    } catch(e) {
+      console.warn('Could not fetch live data, using embedded snapshot:', e);
+    }
+  }
+  // Fall back to embedded data
+  renderDashboard(EMBEDDED_DATA);
+  document.getElementById('last-updated').textContent = 'Using embedded data snapshot — configure DATA_URL for live updates';
+}
+
+function switchTab(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+
+loadData();
+</script>
+</body>
+</html>
