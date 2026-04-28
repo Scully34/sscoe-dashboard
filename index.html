@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+<!-- SSCoE FY 26 Metrics Dashboard -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SSCoE FY26 Performance Dashboard</title>
+<title>SSCoE FY 26 Metrics</title>
 <link href="https://fonts.googleapis.com/css2?family=Charter:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -44,11 +45,11 @@ body { font-family: 'DM Sans', sans-serif; background: var(--pwc-bg); color: var
 .hero-subtitle { font-size: 14px; color: #999; font-weight: 300; }
 
 .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: #fff; border-bottom: 1px solid var(--pwc-border); }
-.kpi { padding: 22px 28px; border-right: 1px solid var(--pwc-border); position: relative; transition: background 0.15s; }
+.kpi { padding: 20px 24px; border-right: 1px solid var(--pwc-border); position: relative; transition: background 0.15s; }
 .kpi:last-child { border-right: none; }
 .kpi:hover { background: var(--pwc-bg); }
 .kpi-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pwc-muted); margin-bottom: 6px; }
-.kpi-value { font-family: 'Charter', Georgia, serif; font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.kpi-value { font-family: 'Charter', Georgia, serif; font-size: 28px; font-weight: 700; line-height: 1.1; margin-bottom: 4px; }
 .kpi-value.orange { color: var(--pwc-orange); }
 .kpi-value.green { color: var(--win-green); }
 .kpi-value.blue { color: var(--pipe-blue); }
@@ -61,7 +62,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--pwc-bg); color: var
 .tab:hover { color: var(--pwc-dark); }
 .tab.active { color: var(--pwc-orange); border-bottom-color: var(--pwc-orange); }
 
-.content { padding: 36px 40px; max-width: 1400px; }
+.content { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
 .panel { display: none; }
 .panel.active { display: block; }
 
@@ -69,15 +70,15 @@ body { font-family: 'DM Sans', sans-serif; background: var(--pwc-bg); color: var
 .section-title { font-family: 'Charter', Georgia, serif; font-size: 20px; font-weight: 700; color: var(--pwc-dark); }
 .section-count { font-size: 12px; font-weight: 600; color: var(--pwc-muted); background: var(--neutral-bg); padding: 2px 8px; border-radius: 20px; }
 
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-.sidebar-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+.sidebar-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
 
 .card { background: #fff; border: 1px solid var(--pwc-border); border-radius: var(--radius); padding: 24px; animation: fadeUp 0.4s ease both; }
 .card:nth-child(1) { animation-delay: 0.05s; }
 .card:nth-child(2) { animation-delay: 0.1s; }
 .card:nth-child(3) { animation-delay: 0.15s; }
 .card:nth-child(4) { animation-delay: 0.2s; }
-.card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pwc-muted); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--pwc-border); }
+.card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pwc-muted); margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--pwc-border); }
 
 .deal-list { display: flex; flex-direction: column; gap: 0; }
 .deal-row { display: grid; grid-template-columns: 1fr 130px 100px 90px; align-items: center; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--pwc-border); transition: all 0.12s; }
@@ -96,22 +97,23 @@ body { font-family: 'DM Sans', sans-serif; background: var(--pwc-bg); color: var
 .badge-propose { background: #E6F0FF; color: #1A4FA0; }
 .badge-withdrawn { background: var(--neutral-bg); color: var(--pwc-muted); }
 
-.bar-chart { display: flex; flex-direction: column; gap: 14px; }
-.bar-label-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
-.bar-label { font-size: 12px; font-weight: 500; color: var(--pwc-dark); }
-.bar-amount { font-size: 12px; font-weight: 600; color: var(--pwc-mid); font-family: 'Charter', Georgia, serif; }
-.bar-track { height: 6px; background: var(--neutral-bg); border-radius: 3px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 3px; background: var(--pwc-orange); transition: width 1.2s cubic-bezier(.16,1,.3,1); }
+.bar-chart { display: flex; flex-direction: column; gap: 18px; }
+.bar-item { display: flex; flex-direction: column; }
+.bar-label-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.bar-label { font-size: 13px; font-weight: 500; color: var(--pwc-dark); }
+.bar-amount { font-size: 13px; font-weight: 700; color: var(--pwc-dark); font-family: 'Charter', Georgia, serif; }
+.bar-track { height: 8px; background: var(--neutral-bg); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; background: var(--pwc-orange); transition: width 1.2s cubic-bezier(.16,1,.3,1); min-width: 8px; }
 .bar-fill.green { background: var(--win-green); }
 .bar-fill.blue { background: var(--pipe-blue); }
-.bar-sub { font-size: 10px; color: var(--pwc-muted); margin-top: 3px; }
+.bar-sub { font-size: 10px; color: var(--pwc-muted); margin-top: 4px; }
 
-.donut-wrap { display: flex; align-items: center; gap: 24px; }
-.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-.legend-item { display: flex; align-items: center; gap: 8px; }
-.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.legend-label { font-size: 12px; color: var(--pwc-dark); }
-.legend-val { font-size: 12px; font-weight: 600; font-family: 'Charter', Georgia, serif; color: var(--pwc-mid); margin-left: auto; }
+.donut-wrap { display: flex; align-items: center; gap: 28px; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.legend-item { display: flex; align-items: center; gap: 10px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.legend-label { font-size: 13px; color: var(--pwc-dark); flex: 1; }
+.legend-val { font-size: 13px; font-weight: 600; font-family: 'Charter', Georgia, serif; color: var(--pwc-mid); }
 
 .leader-list { display: flex; flex-direction: column; gap: 12px; }
 .leader-row { display: flex; align-items: center; gap: 12px; }
@@ -126,22 +128,22 @@ body { font-family: 'DM Sans', sans-serif; background: var(--pwc-bg); color: var
 .leader-wins { font-family: 'Charter', Georgia, serif; font-size: 15px; font-weight: 700; color: var(--pwc-dark); text-align: right; }
 .leader-wins span { display: block; font-size: 10px; font-family: 'DM Sans', sans-serif; color: var(--pwc-muted); font-weight: 400; }
 
-.insight { background: var(--pwc-orange-pale); border-left: 4px solid var(--pwc-orange); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 14px 18px; margin-bottom: 16px; }
-.insight-label { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--pwc-orange); margin-bottom: 4px; }
-.insight-text { font-size: 13px; color: var(--pwc-charcoal); line-height: 1.55; }
+.insight { background: var(--pwc-orange-pale); border-left: 4px solid var(--pwc-orange); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 16px 20px; margin-bottom: 24px; }
+.insight-label { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--pwc-orange); margin-bottom: 6px; }
+.insight-text { font-size: 14px; color: var(--pwc-charcoal); line-height: 1.6; }
 
-.funnel { display: flex; flex-direction: column; gap: 8px; }
-.funnel-stage { display: flex; align-items: center; gap: 12px; }
-.funnel-label { font-size: 11px; font-weight: 600; color: var(--pwc-mid); width: 70px; text-align: right; }
-.funnel-bar-wrap { flex: 1; }
-.funnel-bar { height: 32px; border-radius: 4px; display: flex; align-items: center; padding: 0 12px; font-size: 12px; font-weight: 600; color: #fff; }
-.funnel-meta { font-size: 11px; color: var(--pwc-muted); width: 90px; text-align: right; }
+.funnel { display: flex; flex-direction: column; gap: 10px; }
+.funnel-stage { display: flex; align-items: center; gap: 14px; }
+.funnel-label { font-size: 12px; font-weight: 600; color: var(--pwc-mid); width: 65px; text-align: right; flex-shrink: 0; }
+.funnel-bar-wrap { flex: 1; min-width: 0; max-width: 100%; overflow: hidden; }
+.funnel-bar { height: 34px; border-radius: 5px; display: flex; align-items: center; padding: 0 14px; font-size: 12px; font-weight: 600; color: #fff; min-width: 80px; max-width: 100%; }
+.funnel-meta { font-size: 12px; font-weight: 600; color: var(--pwc-mid); width: 70px; text-align: right; flex-shrink: 0; font-family: 'Charter', Georgia, serif; }
 
-.repeat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.repeat-card { background: var(--pwc-bg); border: 1px solid var(--pwc-border); border-radius: var(--radius-sm); padding: 14px; }
-.repeat-name { font-size: 13px; font-weight: 600; color: var(--pwc-dark); margin-bottom: 4px; }
+.repeat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+.repeat-card { background: var(--pwc-bg); border: 1px solid var(--pwc-border); border-radius: var(--radius-sm); padding: 16px; }
+.repeat-name { font-size: 13px; font-weight: 600; color: var(--pwc-dark); margin-bottom: 6px; display: flex; align-items: center; }
 .repeat-count { font-size: 11px; color: var(--pwc-muted); }
-.repeat-dot { display: inline-block; width: 8px; height: 8px; background: var(--pwc-orange); border-radius: 50%; margin-right: 4px; }
+.repeat-dot { display: inline-block; width: 8px; height: 8px; background: var(--pwc-orange); border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
 
 .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; gap: 16px; }
 .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--pwc-border); border-top-color: var(--pwc-orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -153,6 +155,112 @@ body { font-family: 'DM Sans', sans-serif; background: var(--pwc-bg); color: var
 
 .divider { height: 1px; background: var(--pwc-border); margin: 28px 0; }
 .footer { text-align: center; padding: 20px 40px; font-size: 10px; color: var(--pwc-muted); letter-spacing: 0.08em; border-top: 1px solid var(--pwc-border); margin-top: 40px; }
+
+/* ── RESPONSIVE STYLES ───────────────────────────────────────────────────── */
+
+/* Tablet and below */
+@media (max-width: 1024px) {
+  .topbar { padding: 0 24px; }
+  .hero { padding: 32px 24px 28px; }
+  .content { padding: 28px 24px; }
+  .tab-wrapper { padding: 0 24px; }
+  .footer { padding: 20px 24px; }
+  .two-col { gap: 20px; }
+  .sidebar-layout { grid-template-columns: 1fr; }
+  .repeat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .topbar { padding: 0 16px; height: 52px; }
+  .pwc-logo-text { display: none; }
+  .pwc-logo-divider { display: none; }
+  .topbar-meta { font-size: 10px; }
+  .topbar-updated { font-size: 9px; }
+  
+  .hero { padding: 24px 16px 20px; }
+  .hero::before { width: 200px; height: 200px; top: -40px; right: -40px; }
+  .hero-eyebrow { font-size: 9px; margin-bottom: 8px; }
+  .hero-title { font-size: 24px; margin-bottom: 6px; }
+  .hero-subtitle { font-size: 12px; }
+  
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .kpi { padding: 16px; }
+  .kpi:nth-child(2) { border-right: none; }
+  .kpi:nth-child(3) { border-top: 1px solid var(--pwc-border); }
+  .kpi:nth-child(4) { border-top: 1px solid var(--pwc-border); }
+  .kpi-label { font-size: 9px; margin-bottom: 4px; }
+  .kpi-value { font-size: 24px; }
+  .kpi-sub { font-size: 10px; }
+  
+  .tab-wrapper { padding: 0 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab { padding: 14px 14px; font-size: 10px; }
+  
+  .content { padding: 20px 16px; }
+  .two-col { grid-template-columns: 1fr; gap: 16px; }
+  .sidebar-layout { grid-template-columns: 1fr; gap: 16px; }
+  
+  .card { padding: 18px; border-radius: 10px; }
+  .card-title { font-size: 10px; margin-bottom: 14px; padding-bottom: 10px; }
+  
+  .deal-row { grid-template-columns: 1fr auto; gap: 8px; padding: 10px 0; }
+  .deal-row > *:nth-child(2),
+  .deal-row > *:nth-child(3) { display: none; }
+  .deal-client { font-size: 12px; }
+  .deal-opp { font-size: 10px; }
+  .deal-amount { font-size: 13px; }
+  
+  .donut-wrap { flex-direction: column; gap: 16px; }
+  .donut-legend { width: 100%; }
+  .legend-item { gap: 6px; }
+  .legend-label { font-size: 11px; }
+  .legend-val { font-size: 11px; }
+  
+  .bar-chart { gap: 14px; }
+  .bar-label { font-size: 12px; }
+  .bar-amount { font-size: 12px; }
+  .bar-track { height: 6px; }
+  .bar-sub { font-size: 9px; }
+  
+  .funnel-stage { gap: 8px; }
+  .funnel-label { width: 55px; font-size: 10px; }
+  .funnel-bar { height: 28px; font-size: 11px; padding: 0 10px; }
+  .funnel-meta { width: 70px; font-size: 10px; }
+  
+  .repeat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .repeat-card { padding: 12px; }
+  .repeat-name { font-size: 12px; }
+  .repeat-count { font-size: 10px; }
+  
+  .insight { padding: 12px 14px; }
+  .insight-label { font-size: 8px; }
+  .insight-text { font-size: 12px; }
+  
+  .leader-row { gap: 10px; }
+  .leader-rank { font-size: 16px; width: 20px; }
+  .leader-avatar { width: 32px; height: 32px; font-size: 11px; }
+  .leader-name { font-size: 12px; }
+  .leader-detail { font-size: 10px; }
+  .leader-wins { font-size: 14px; }
+  .leader-wins span { font-size: 9px; }
+  
+  .section-header { margin-bottom: 16px; }
+  .section-title { font-size: 18px; }
+  .section-count { font-size: 11px; padding: 2px 6px; }
+  
+  .footer { padding: 16px; margin-top: 24px; font-size: 9px; }
+  .divider { margin: 20px 0; }
+}
+
+/* Small phones */
+@media (max-width: 400px) {
+  .kpi-strip { grid-template-columns: 1fr; }
+  .kpi { border-right: none; border-bottom: 1px solid var(--pwc-border); }
+  .kpi:nth-child(3) { border-top: none; }
+  .kpi:nth-child(4) { border-top: none; border-bottom: none; }
+  .repeat-grid { grid-template-columns: 1fr; }
+  .tab { padding: 12px 10px; font-size: 9px; }
+}
 </style>
 </head>
 <body>
@@ -171,7 +279,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--pwc-bg); color: var
 
 <div class="hero">
   <div class="hero-eyebrow">Annual Performance Review</div>
-  <div class="hero-title">SSCoE FY26 Dashboard</div>
+  <div class="hero-title">SSCoE FY 26 Metrics</div>
   <div class="hero-subtitle" id="hero-subtitle">Loading data...</div>
 </div>
 
@@ -395,10 +503,15 @@ function renderDashboard(data) {
       <div class="card">
         <div class="card-title">Pipeline Stage Funnel</div>
         <div class="funnel">
-          <div class="funnel-stage"><div class="funnel-label">Interact</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--pipe-blue);width:100%">${interact.length} deals</div></div><div class="funnel-meta">${fmt(totalInteract)}</div></div>
-          <div class="funnel-stage"><div class="funnel-label">Propose</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#3A6CC4;width:${Math.round((propose.length/interact.length)*100)||50}%">${propose.length} deals</div></div><div class="funnel-meta">${fmt(totalPropose)}</div></div>
-          <div class="funnel-stage"><div class="funnel-label">Target</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#6B8FD4;width:${Math.round((target.length/interact.length)*100)||40}%">${target.length} deals</div></div><div class="funnel-meta">${fmt(totalTarget)}</div></div>
-          <div class="funnel-stage"><div class="funnel-label">Won ✓</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--win-green);width:${Math.round((wins.length/interact.length)*100)||30}%">${wins.length} deals</div></div><div class="funnel-meta">${fmt(totalWon)}</div></div>
+          ${(() => {
+            const maxDeals = Math.max(interact.length, propose.length, target.length, wins.length, 1);
+            return `
+          <div class="funnel-stage"><div class="funnel-label">Interact</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--pipe-blue);width:${Math.round((interact.length/maxDeals)*100)}%">${interact.length} deals</div></div><div class="funnel-meta">${fmt(totalInteract)}</div></div>
+          <div class="funnel-stage"><div class="funnel-label">Propose</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#3A6CC4;width:${Math.round((propose.length/maxDeals)*100)}%">${propose.length} deals</div></div><div class="funnel-meta">${fmt(totalPropose)}</div></div>
+          <div class="funnel-stage"><div class="funnel-label">Target</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:#6B8FD4;width:${Math.round((target.length/maxDeals)*100)}%">${target.length} deals</div></div><div class="funnel-meta">${fmt(totalTarget)}</div></div>
+          <div class="funnel-stage"><div class="funnel-label">Won</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="background:var(--win-green);width:${Math.round((wins.length/maxDeals)*100)}%">${wins.length} deals</div></div><div class="funnel-meta">${fmt(totalWon)}</div></div>
+            `;
+          })()}
         </div>
       </div>
     </div>`;
@@ -530,3 +643,4 @@ loadData();
 </script>
 </body>
 </html>
+
